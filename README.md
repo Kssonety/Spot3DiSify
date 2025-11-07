@@ -7,6 +7,16 @@
 
 Spotify for the Nintendo 3DS Family!
 
+## Compilation
+
+1. Install devkitPro from https://devkitpro.org
+
+2. Run `git clone https://github.com/Kssonety/Spot3DiSify`
+
+3. Run `cd Spot3DiSify`
+
+4. Run `make`
+
 ## Instructions
 
 1. Download the latest release in either .3dsx or .cia format, and place it on your 3ds's SD card.
