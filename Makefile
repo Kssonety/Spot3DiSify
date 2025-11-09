@@ -9,6 +9,8 @@ endif
 TOPDIR ?= $(CURDIR)
 include $(DEVKITARM)/3ds_rules
 
+CIABUILDER:= $(CURDIR)/CIABUILDER.bat
+
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
 # BUILD is the directory where object files & intermediate files will be placed
@@ -180,9 +182,13 @@ endif
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD)
+	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD)
+	@rm -fr icon.icn banner.bnr $(TARGET).cia $(TARGET).3ds
 
 #---------------------------------------------------------------------------------
+cia:
+	@$(CIABUILDER)
+
 $(GFXBUILD)/%.t3x	$(BUILD)/%.h	:	%.t3s
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
