@@ -41,4 +41,6 @@ D-PAD Up/Down = Volume
 
 Allows for playing .OGG files from the /3ds/Spot3DiSify/music/ folder.
 
-Will allow for online songs directly from Spotify.
+Will eventually allow for online songs directly from Spotify.
+
+Sadly, background music while gaming isn't possible :(
