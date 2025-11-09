@@ -1,4 +1,8 @@
 # Spot3DiSify
+
+<img width="128" height="128" alt="icon" src="https://github.com/user-attachments/assets/4b1ad770-d41e-4408-8bf0-cd98639aaf73" />
+<img width="256" height="128" alt="banner" src="https://github.com/user-attachments/assets/12f17a89-7ceb-4928-99b7-c2fbb30b56ac" />
+
 **FOR THIS TO WORK, YOU NEED A NINTENDO 3DS OR 2DS RUNNING CUSTOM FIRMWARE.**
 
 **THIS PROGRAM WILL RUN BEST ON A NEW NINTENDO 3DS XL.**
