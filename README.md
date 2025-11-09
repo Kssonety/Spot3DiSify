@@ -15,7 +15,9 @@ Spotify for the Nintendo 3DS Family!
 
 3. Run `cd Spot3DiSify`
 
-4. Run `make`
+4. Run `make` to compile into .elf, .smdh and . 3dsx files.
+
+5. Run `make cia` to compile into .cia and .3ds files.
 
 ## Instructions
 
@@ -26,6 +28,8 @@ Spotify for the Nintendo 3DS Family!
 3. If you got a .CIA file, use FBI to install it onto your homescreen.
 
 4. If you got a .3DSX file, open Homebrew Launcher and run the 3dsx file from there.
+
+5. If you got a .3DS file, open GODMODE9 to convert it into a CIA and then install it.
 
 ## Controls
 
