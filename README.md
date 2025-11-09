@@ -26,3 +26,15 @@ Spotify for the Nintendo 3DS Family!
 3. If you got a .CIA file, use FBI to install it onto your homescreen.
 
 4. If you got a .3DSX file, open Homebrew Launcher and run the 3dsx file from there.
+
+## Controls
+
+D-PAD Left/Right = Skip
+
+D-PAD Up/Down = Volume
+
+## Features
+
+Allows for playing .OGG files from the /3ds/Spot3DiSify/music/ folder.
+
+Will allow for online songs directly from Spotify.
