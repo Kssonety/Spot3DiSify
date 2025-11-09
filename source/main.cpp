@@ -18,18 +18,19 @@ static ndspWaveBuf waveBufs[NUM_BUFFERS];
 OggVorbis_File vf;
 vorbis_info* vi;
 float volume = 1.0f;
+bool loopMode = false;
 
-bool playOGG(const char* path) {
+int playOGG(const char* path) {
     FILE* file = fopen(path, "rb");
     if (!file) {
         printf("Failed to open: %s\n", path);
-        return false;
+        return 0;
     }
 
     if (ov_open(file, &vf, NULL, 0) < 0) {
         printf("Not a valid OGG file.\n");
         fclose(file);
-        return false;
+        return 0;
     }
 
     vi = ov_info(&vf, -1);
@@ -37,7 +38,7 @@ bool playOGG(const char* path) {
         printf("Invalid audio format.\n");
         ov_clear(&vf);
         fclose(file);
-        return false;
+        return 0;
     }
 
     ndspChnReset(0);
@@ -54,7 +55,7 @@ bool playOGG(const char* path) {
             for (int j = 0; j < i; ++j) linearFree(audioBuffers[j]);
             ov_clear(&vf);
             fclose(file);
-            return false;
+            return 0;
         }
         memset(&waveBufs[i], 0, sizeof(ndspWaveBuf));
         waveBufs[i].data_vaddr = audioBuffers[i];
@@ -63,22 +64,49 @@ bool playOGG(const char* path) {
 
     int currentBuf = 0;
     int current_section;
+    bool paused = false;
 
     while (aptMainLoop()) {
         hidScanInput();
         u32 kDown = hidKeysDown();
 
-        if (kDown & KEY_RIGHT || kDown & KEY_LEFT || kDown & KEY_START) break;
+        if (kDown & KEY_L) {
+            loopMode = !loopMode;
+            printf(loopMode ? "Loop mode ON\n" : "Loop mode OFF\n");
+        }
+
+        if (kDown & KEY_START) {
+            paused = !paused;
+            printf(paused ? "Paused\n" : "Resumed\n");
+        }
+
+        if (kDown & KEY_RIGHT) {
+            ov_clear(&vf);
+            fclose(file);
+            return 1;
+        }
+
+        if (kDown & KEY_LEFT) {
+            ov_clear(&vf);
+            fclose(file);
+            return -1;
+        }
 
         if (kDown & KEY_UP) {
-            volume = std::min(volume + 0.1f, 5.0f);
+            volume = std::min(volume + 0.1f, 1.0f);
             ndspSetMasterVol(volume);
             printf("Volume: %.0f%%\n", volume * 100);
         }
+
         if (kDown & KEY_DOWN) {
             volume = std::max(volume - 0.1f, 0.0f);
             ndspSetMasterVol(volume);
             printf("Volume: %.0f%%\n", volume * 100);
+        }
+
+        if (paused) {
+            svcSleepThread(1000000);
+            continue;
         }
 
         ndspWaveBuf* buf = &waveBufs[currentBuf];
@@ -89,15 +117,12 @@ bool playOGG(const char* path) {
 
         long ret = ov_read(&vf, (char*)audioBuffers[currentBuf], BUFFER_SIZE, &current_section);
         if (ret <= 0) {
-            printf("Playback complete or error: %ld\n", ret);
+            printf("Playback complete.\n");
             break;
         }
 
         buf->nsamples = ret / (vi->channels * sizeof(s16));
-        if (buf->nsamples == 0) {
-            printf("Zero samples — skipping.\n");
-            continue;
-        }
+        if (buf->nsamples == 0) continue;
 
         DSP_FlushDataCache(audioBuffers[currentBuf], ret);
         ndspChnWaveBufAdd(0, buf);
@@ -118,7 +143,7 @@ bool playOGG(const char* path) {
         if (audioBuffers[i]) linearFree(audioBuffers[i]);
     }
 
-    return true;
+    return 2;
 }
 
 std::vector<std::string> getOggFiles(const char* directory) {
@@ -138,11 +163,21 @@ std::vector<std::string> getOggFiles(const char* directory) {
     return files;
 }
 
+void aptHookFunc(APT_HookType hook, void* param) {
+    if (hook == APTHOOK_ONSUSPEND || hook == APTHOOK_ONEXIT) {
+        ndspChnReset(0);
+    }
+}
+
 int main() {
     gfxInitDefault();
     consoleInit(GFX_TOP, NULL);
     ndspInit();
     aptSetSleepAllowed(false);
+
+    aptHookCookie hookCookie;
+    aptHook(&hookCookie, aptHookFunc, NULL);
+
     std::vector<std::string> playlist = getOggFiles(MUSIC_DIR);
     if (playlist.empty()) {
         printf("No .ogg files found in:\n%s\n", MUSIC_DIR);
@@ -154,25 +189,24 @@ int main() {
             printf("Now playing:\n%s\n", playlist[index].c_str());
             printf("Volume: %.0f%%\n", volume * 100);
 
-            if (!playOGG(fullPath.c_str())) {
-                printf("Playback failed. Skipping...\n");
-            }
+            int result = playOGG(fullPath.c_str());
 
-            hidScanInput();
-            u32 kDown = hidKeysDown();
-
-            if (kDown & KEY_START) break;
-            if (kDown & KEY_RIGHT) {
+            if (result == 1) {
                 index = (index + 1) % playlist.size();
-            } else if (kDown & KEY_LEFT) {
+            } else if (result == -1) {
                 index = (index - 1 + playlist.size()) % playlist.size();
+            } else if (result == 2) {
+                if (!loopMode) {
+                    index = (index + 1) % playlist.size();
+                }
             } else {
-                index = (index + 1) % playlist.size(); // auto-advance
+                break;
             }
         }
     }
 
     ndspExit();
     gfxExit();
+    aptExit();
     return 0;
 }
