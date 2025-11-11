@@ -9,6 +9,8 @@
 
 **THIS PROGRAM WAS TESTED ON A NEW NINTENDO 2DS XL.**
 
+**DEVELOPMENT PAUSED FOR NOW, WILL CONTINUE SOON.**
+
 Spotify for the Nintendo 3DS Family!
 
 ## Compilation
